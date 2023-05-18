@@ -21,7 +21,7 @@ app.get('/test', (req,res) => {
 app.post('/register', async (req,res) => {
   const {username,password} = req.body;
   const createdUser = await UserModel.create({username, password});
-  jwt.sign({userId: createdUser, _id}, JWT_SECRET, (error, token) => {
+  jwt.sign({userId: createdUser._id}, JWT_SECRET, (error, token) => {
     if (error) throw error;
     res.cookie('token', token).status(201).json('ok')
   })
