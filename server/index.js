@@ -1,10 +1,15 @@
 const express = require('express');
-const app = express();
-require('dotenv').config();
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+
+dotenv.config();
 
 const PORT = process.env.PORT || 4000;
+const MONGO_URL = process.env.MONGO_URL;
 
-console.log(PORT)
+mongoose.connect(MONGO_URL);
+
+const app = express();
 
 app.get('/test', (req,res) => {
   res.json('test ok');
