@@ -11,8 +11,12 @@ const PORT = process.env.PORT || 4000;
 const MONGO_URL = process.env.MONGO_URL;
 JWT_SECRET = process.env.JWT_SECRET;
 
-mongoose.connect(MONGO_URL, (error) => {
-  if (error) throw error;
+mongoose.connect(MONGO_URL).then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server listening on PORT ${PORT}...`)
+  })
+}).catch((error) => {
+  console.error('Failed to connect to MongoDB:', error)
 });
 
 const app = express();
@@ -20,9 +24,10 @@ app.use(cors({
   credentials: true,
   origin: process.env.CLIENT_URL
 }))
+app.use(express.json())
 
 app.get('/test', (req,res) => {
-  res.json('test ok');
+  res.json('Test ok');
 })
 
 app.post('/register', async (req,res) => {
@@ -30,13 +35,12 @@ app.post('/register', async (req,res) => {
   try {
     const createdUser = await UserModel.create({username, password});
     jwt.sign({userId: createdUser._id}, JWT_SECRET, {}, (error, token) => {
-      if (error) throw error;
-      res.cookie('token', token).status(201).json('ok')
+      if (error) {
+        res.status(500).json('Error signing token')
+      }
+      res.cookie('token', token).status(201).json('User created')
     })
   } catch(error) {
-    if (error) throw error;
-    res.status(500).json('error')
+    res.status(500).json('Error creating user')
   }
 })
-
-app.listen(PORT);
