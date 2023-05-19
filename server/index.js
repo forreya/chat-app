@@ -2,7 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const UserModel = require('./models/User')
+const UserModel = require('./models/user')
 
 dotenv.config();
 
