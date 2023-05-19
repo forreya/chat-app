@@ -1,6 +1,6 @@
-## Instant Messaging Application
+## ChatterBox - Instant Messaging Application
 
-Devloping using the MERN Stack.
+Developing using the MERN Stack.
 
 ### Development Notes:
 
