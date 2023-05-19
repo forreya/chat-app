@@ -38,7 +38,9 @@ app.post('/register', async (req,res) => {
       if (error) {
         res.status(500).json('Error signing token')
       }
-      res.cookie('token', token).status(201).json('User created')
+      res.cookie('token', token).status(201).json({
+        _id: createdUser._id
+      })
     })
   } catch(error) {
     res.status(500).json('Error creating user')
