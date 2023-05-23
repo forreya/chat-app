@@ -9,6 +9,7 @@ _Random snippets & reminders of things._
 #### Changes to Make:
 - [ ] Get environment variables to work in client-side (for backend port, etc)
 - [ ] Rearrange backend file structure for more clarity (database connection file, routes file, etc)
+- [ ] Convert useContext to Redux Toolkit (maybe)
 
 #### Bugs to Fix:
 
