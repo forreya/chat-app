@@ -1,13 +1,12 @@
-import Register from "./pages/Register"
+import Routes from "./Routes";
 import axios from 'axios';
 
 function App() {
-  
   axios.defaults.baseURL = 'http://localhost:4000'
   axios.defaults.withCredentials = true;
 
   return (
-    <Register />
+    <Routes />
   )
 }
 

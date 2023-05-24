@@ -1,8 +1,8 @@
-import {createContext} from 'react';
+import {createContext, useState, useContext} from 'react';
 
 export const UserContext = createContext({});
 
-function UserContextProvider({children}) {
+export function UserContextProvider({children}) {
   const [username, setUsername] = useState(null);
   const [id, setId] = useState(null)
 
