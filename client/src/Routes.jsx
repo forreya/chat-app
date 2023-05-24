@@ -1,4 +1,4 @@
-import Register from "./pages/Register"
+import RegisterAndLogin from "./pages/RegisterAndLogin"
 import { useContext } from "react"
 import { UserContext } from "./state/userContext"
 
@@ -10,6 +10,6 @@ export default function Routes() {
   }
 
   return (
-    <Register />
+    <RegisterAndLogin />
   )
 }
