@@ -5,12 +5,14 @@ const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken');
 const UserModel = require('./models/user')
 const cors = require('cors')
+const bcrypt = require('bcryptjs')
 
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URL = process.env.MONGO_URL;
 JWT_SECRET = process.env.JWT_SECRET;
+const bcryptSalt = bcrypt.genSaltSync(10)
 
 mongoose.connect(MONGO_URL).then(() => {
   app.listen(PORT, () => {
@@ -45,10 +47,19 @@ app.get('/profile', (req,res) => {
   }
 })
 
+app.post('/login', async (req,res) => {
+  const {username, password} = req.body;
+  const foundUser = await UserModel.findOne({username});
+})
+
 app.post('/register', async (req,res) => {
   const {username,password} = req.body;
   try {
-    const createdUser = await UserModel.create({username, password});
+    const hashedPassword = bcrypt.hashSync(password, bcryptSalt)
+    const createdUser = await UserModel.create({
+      username: username, 
+      password: hashedPassword,
+    });
     jwt.sign({userId: createdUser._id, username}, JWT_SECRET, {}, (error, token) => {
       if (error) {
         res.status(500).json('Error signing token')
