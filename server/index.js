@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const UserModel = require('./models/user')
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
+const ws = require('ws')
 
 dotenv.config();
 
@@ -15,8 +16,12 @@ JWT_SECRET = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10)
 
 mongoose.connect(MONGO_URL).then(() => {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server listening on PORT ${PORT}...`)
+  })
+  const ws_server = new ws.WebSocketServer({server})
+  ws_server.on('connection', (connection, req) => {
+    console.log('Connected')
   })
 }).catch((error) => {
   console.error('Failed to connect to MongoDB:', error)
