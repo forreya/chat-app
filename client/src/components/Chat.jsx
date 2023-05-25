@@ -8,8 +8,19 @@ export default function Chat() {
     ws.addEventListener('message', handleMessage)
   },[])
 
+  function showOnlinePeople(peopleArray) {
+    const people = {}
+    peopleArray.forEach(({userId, username}) => {
+      people[userId] = username
+    })
+    console.log(people);
+  }
+
   function handleMessage(event) {
-    console.log('New message', event)
+    const messageData = JSON.parse(event.data);
+    if ('online' in messageData) {
+      showOnlinePeople(messageData.online)
+    }
   }
 
   return (

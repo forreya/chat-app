@@ -21,7 +21,30 @@ mongoose.connect(MONGO_URL).then(() => {
   })
   const ws_server = new ws.WebSocketServer({server})
   ws_server.on('connection', (connection, req) => {
-    console.log('Connected')
+    const cookies = req.headers.cookie
+    if (cookies) {
+      const tokenCookieString = cookies.split(';').find(str => str.startsWith('token='));
+      if (tokenCookieString) {
+        const token = tokenCookieString.split('=')[1];
+        if (token) {
+          jwt.verify(token, JWT_SECRET, {}, (error, userData) => {
+            if (error) {
+              res.status(500).json('Error verifying token')
+            }
+            const {userId, username} = userData;
+            connection.userId = userId;
+            connection.username = username;
+          })
+        }
+      }
+    }
+
+    [...ws_server.clients].forEach(client => {
+      client.send(JSON.stringify({
+        online: [...ws_server.clients].map(client => ({userId:client.userId, username:client.username}))
+      }
+      ))
+    })
   })
 }).catch((error) => {
   console.error('Failed to connect to MongoDB:', error)
