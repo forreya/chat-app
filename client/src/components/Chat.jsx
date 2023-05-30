@@ -8,6 +8,7 @@ export default function Chat() {
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [newMessageText, setNewMessageText] = useState('')
+  const [messages, setMessages] = useState([]);
   const {username, id} = useContext(UserContext)
 
   useEffect(() => {
@@ -28,6 +29,8 @@ export default function Chat() {
     const messageData = JSON.parse(event.data);
     if ('online' in messageData) {
       showOnlinePeople(messageData.online)
+    } else {
+      console.log({messageData})
     }
   }
 
@@ -37,6 +40,8 @@ export default function Chat() {
       recipient: selectedUserId,
       text: newMessageText,
     }))
+    setNewMessageText('');
+    setMessages(prev => [...prev, { text: newMessageText, isOur: true }]);
   }
 
   const onlinePeopleExclOurUser = {...onlinePeople}
@@ -68,6 +73,13 @@ export default function Chat() {
               <div className="text-gray-300">&larr; No one is currently selected</div>
             </div>
           )}
+          {!!selectedUserId && (
+            <div>
+              {messages.map(message => (
+                <div>{message.text}</div>
+              ))}
+            </div>)
+          }
         </div>
         {!!selectedUserId && (
           <form className="flex gap-2" onSubmit={sendMessage}>

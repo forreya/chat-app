@@ -51,7 +51,12 @@ mongoose.connect(MONGO_URL).then(() => {
 
     connection.on('message', (message) => {
       const messageData = JSON.parse(message.toString());
-      console.log(messageData);
+      const {recipient, text} = messageData;
+      if (recipient && text) {
+        Array.from(ws_server.clients)
+          .filter(client => client.userId === recipient)
+          .forEach(client => client.send(JSON.stringify({text})));
+      }
     })
 
     // Notify everyone about other online people
