@@ -42,7 +42,6 @@ export default function Chat() {
     <div className="flex h-screen">
        <div className="bg-white w-1/3">
         <Logo />
-        {username}
         {Object.keys(onlinePeopleExclOurUser).map(userId => (
           <div 
             key={userId}
@@ -60,7 +59,11 @@ export default function Chat() {
        </div>
        <div className="flex flex-col bg-blue-50 w-2/3 p-2">
         <div className="flex-grow">
-          Messages with selected person
+          {!selectedUserId && (
+            <div className="flex h-full items-center justify-center">
+              <div className="text-gray-300">&larr; No one is currently selected</div>
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <input 
