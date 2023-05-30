@@ -10,9 +10,17 @@ const ws = require('ws')
 
 dotenv.config();
 
+const app = express();
+app.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL
+}))
+app.use(express.json())
+app.use(cookieParser())
+
 const PORT = process.env.PORT || 4000;
 const MONGO_URL = process.env.MONGO_URL;
-JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10)
 
 mongoose.connect(MONGO_URL).then(() => {
@@ -21,6 +29,8 @@ mongoose.connect(MONGO_URL).then(() => {
   })
   const ws_server = new ws.WebSocketServer({server})
   ws_server.on('connection', (connection, req) => {
+
+    // Read username and id from the cookie for this connection
     const cookies = req.headers.cookie
     if (cookies) {
       const tokenCookieString = cookies.split(';').find(str => str.startsWith('token='));
@@ -29,7 +39,7 @@ mongoose.connect(MONGO_URL).then(() => {
         if (token) {
           jwt.verify(token, JWT_SECRET, {}, (error, userData) => {
             if (error) {
-              res.status(500).json('Error verifying token')
+              connection.send('Error verifying token');
             }
             const {userId, username} = userData;
             connection.userId = userId;
@@ -39,7 +49,13 @@ mongoose.connect(MONGO_URL).then(() => {
       }
     }
 
-    [...ws_server.clients].forEach(client => {
+    connection.on('message', (message) => {
+      const messageData = JSON.parse(message.toString());
+      console.log(messageData);
+    })
+
+    // Notify everyone about other online people
+    Array.from(ws_server.clients).forEach(client => {
       client.send(JSON.stringify({
         online: [...ws_server.clients].map(client => ({userId:client.userId, username:client.username}))
       }
@@ -50,13 +66,6 @@ mongoose.connect(MONGO_URL).then(() => {
   console.error('Failed to connect to MongoDB:', error)
 });
 
-const app = express();
-app.use(cors({
-  credentials: true,
-  origin: process.env.CLIENT_URL
-}))
-app.use(express.json())
-app.use(cookieParser())
 app.get('/test', (req,res) => {
   res.json('Test ok');
 })
