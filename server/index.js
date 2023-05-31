@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken');
 const UserModel = require('./models/user')
+const MessageModel = require('./models/message')
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const ws = require('ws')
@@ -49,13 +50,23 @@ mongoose.connect(MONGO_URL).then(() => {
       }
     }
 
-    connection.on('message', (message) => {
+    connection.on('message', async (message) => {
       const messageData = JSON.parse(message.toString());
       const {recipient, text} = messageData;
       if (recipient && text) {
+        const messageDoc = await MessageModel.create({
+          sender: connection.userId,
+          recipient,
+          text,
+        });
         Array.from(ws_server.clients)
           .filter(client => client.userId === recipient)
-          .forEach(client => client.send(JSON.stringify({text, sender:connection.userId})));
+          .forEach(client => client.send(JSON.stringify({
+            text, 
+            sender:connection.userId,
+            recipient,
+            id: messageDoc._id
+          })));
       }
     })
 

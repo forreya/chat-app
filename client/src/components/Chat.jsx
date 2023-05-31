@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "../state/userContext";
+import { uniqBy } from 'lodash'
 
 export default function Chat() {
   const [ws,setWs] = useState(null);
@@ -30,8 +31,8 @@ export default function Chat() {
     console.log({event, messageData});
     if ('online' in messageData) {
       showOnlinePeople(messageData.online)
-    } else {
-      setMessages(prev => [...prev, { text: messageData.text, isOur: false }]);
+    } else if ('text' in messageData) {
+      setMessages(prev => [...prev, {...messageData}]);
     }
   }
 
@@ -42,11 +43,17 @@ export default function Chat() {
       text: newMessageText,
     }))
     setNewMessageText('');
-    setMessages(prev => [...prev, { text: newMessageText, isOur: true }]);
+    setMessages(prev => [...prev, {
+      text: newMessageText, 
+      sender: id,
+      recipient: selectedUserId,
+    }]);
   }
 
   const onlinePeopleExclOurUser = {...onlinePeople}
   delete onlinePeopleExclOurUser[id]
+
+  const messagesWithoutDupes = uniqBy(messages, 'id');
 
   return (
     <div className="flex h-screen">
@@ -76,8 +83,12 @@ export default function Chat() {
           )}
           {!!selectedUserId && (
             <div>
-              {messages.map(message => (
-                <div>{message.text}</div>
+              {messagesWithoutDupes.map(message => (
+                <div className={" " + (message.sender === id ? 'bg-blue-500 text-white':'bg-white text-gray-500')}>
+                  sender: {message.sender}<br />
+                  my id: {id}<br />
+                  {message.text}
+                </div>
               ))}
             </div>)
           }
