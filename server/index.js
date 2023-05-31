@@ -55,7 +55,7 @@ mongoose.connect(MONGO_URL).then(() => {
       if (recipient && text) {
         Array.from(ws_server.clients)
           .filter(client => client.userId === recipient)
-          .forEach(client => client.send(JSON.stringify({text})));
+          .forEach(client => client.send(JSON.stringify({text, sender:connection.userId})));
       }
     })
 
