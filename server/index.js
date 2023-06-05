@@ -82,12 +82,29 @@ mongoose.connect(MONGO_URL).then(() => {
   console.error('Failed to connect to MongoDB:', error)
 });
 
+async function getUserDataFromRequest(req) {
+  return new Promise((resolve, reject) => {
+    const token = req.cookies?.token;
+    if (token) {
+      jwt.verify(token, JWT_SECRET, {}, (error, userData) => {
+        if (error) {
+          res.status(500).json('Error verifying token')
+        }
+        resolve(userData)
+      })
+    } else {
+      reject('No token found')
+    }
+  })
+}
+
 app.get('/test', (req,res) => {
   res.json('Test ok');
 })
 
 app.get('/messages/:userId', (req, res) => {
-  res.json(req.params)
+  const {userId} = req.params;
+  const userData = getUserDataFromRequest(req);
 })
 
 app.get('/profile', (req,res) => {
