@@ -86,6 +86,10 @@ app.get('/test', (req,res) => {
   res.json('Test ok');
 })
 
+app.get('/messages/:userId', (req, res) => {
+  res.json(req.params)
+})
+
 app.get('/profile', (req,res) => {
   const token = req.cookies?.token;
   if (token) {

@@ -59,6 +59,12 @@ export default function Chat() {
     }
   }, [messages])
 
+  useEffect(() => {
+    if (selectedUserId) {
+      axios.get('/messages/' + selectedUserId)
+    }
+  }, [])
+
   const onlinePeopleExclOurUser = {...onlinePeople}
   delete onlinePeopleExclOurUser[id]
 
