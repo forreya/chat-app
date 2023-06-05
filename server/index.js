@@ -109,7 +109,7 @@ app.get('/messages/:userId', async (req, res) => {
   const messages = await MessageModel.find({
     sender: {$in:[userId,ourUserId]},
     recipient: {$in:[userId,ourUserId]},
-  }).sort({createdAt: -1})
+  }).sort({createdAt: 1})
   res.json(messages);
 })
 

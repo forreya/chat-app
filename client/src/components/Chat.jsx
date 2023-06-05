@@ -21,7 +21,12 @@ export default function Chat() {
     const ws = new WebSocket('ws://localhost:4000')
     setWs(ws)
     ws.addEventListener('message', handleMessage)
-    ws.addEventListener('close', () => connectToWs())
+    ws.addEventListener('close', () => {
+      setTimeout(() => {
+        console.log('Disconnected. Trying to reconnect...');
+        connectToWs();
+      }, 1000)
+    })
   }
 
   function showOnlinePeople(peopleArray) {
@@ -53,7 +58,7 @@ export default function Chat() {
       text: newMessageText, 
       sender: id,
       recipient: selectedUserId,
-      id: Date.now(),
+      _id: Date.now(),
     }]);
   }
 
@@ -66,14 +71,16 @@ export default function Chat() {
 
   useEffect(() => {
     if (selectedUserId) {
-      axios.get('/messages/' + selectedUserId)
+      axios.get('/messages/' + selectedUserId).then(res => {
+        setMessages(res.data);
+      })
     }
   }, [])
 
   const onlinePeopleExclOurUser = {...onlinePeople}
   delete onlinePeopleExclOurUser[id]
 
-  const messagesWithoutDupes = uniqBy(messages, 'id');
+  const messagesWithoutDupes = uniqBy(messages, '_id');
 
   return (
     <div className="flex h-screen">
@@ -105,7 +112,7 @@ export default function Chat() {
             <div className="relative h-full">
               <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
                 {messagesWithoutDupes.map(message => (
-                  <div className={(message.sender === id ? 'text-right' : 'text-left')}>
+                  <div key={message._id} className={(message.sender === id ? 'text-right' : 'text-left')}>
                     <div className={"text-left inline-block p-2 my-2 rounded-md text-sm " + (message.sender === id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500')}>
                       sender: {message.sender}<br />
                       my id: {id}<br />
