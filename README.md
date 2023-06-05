@@ -16,9 +16,9 @@ _Random snippets & reminders of things._
 None right now.
 
 #### Features to Add:
-- [ ] Register / Login
-- [ ] Websockets (Authentication)
-- [ ] Chat Page
+- [✓] Register / Login
+- [✓] Websockets (Authentication)
+- [✓] Chat Page
 - [ ] Messages & Conversations
 - [ ] Online Indicator
 - [ ] Uploads & Attachments
