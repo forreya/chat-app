@@ -8,6 +8,7 @@ import axios from 'axios';
 export default function Chat() {
   const [ws,setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
+  const [offlinePeople, setOfflinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [newMessageText, setNewMessageText] = useState('')
   const [messages, setMessages] = useState([]);
@@ -69,6 +70,19 @@ export default function Chat() {
       div.scrollIntoView({behavior:'smooth', block:'end'})
     }
   }, [messages])
+
+  useEffect(() => {
+    axios.get('/people').then(res => {
+      const offlinePeopleArr = res.data
+        .filter(person => person._id !== id)
+        .filter(person => !Object.keys(onlinePeople).includes(person._id))
+    })
+    const offlinePeople = {}
+    offlinePeopleArr.forEach(person => {
+      offlinePeople[person._id] = person
+    })
+    setOfflinePeople(offlinePeople)
+  },[onlinePeople])
 
   useEffect(() => {
     if (selectedUserId) {
