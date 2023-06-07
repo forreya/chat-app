@@ -3,6 +3,7 @@ import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "../state/userContext";
 import { uniqBy } from 'lodash'
+import axios from 'axios';
 
 export default function Chat() {
   const [ws,setWs] = useState(null);
@@ -72,10 +73,11 @@ export default function Chat() {
   useEffect(() => {
     if (selectedUserId) {
       axios.get('/messages/' + selectedUserId).then(res => {
+        console.log(res.data)
         setMessages(res.data);
       })
     }
-  }, [])
+  }, [selectedUserId])
 
   const onlinePeopleExclOurUser = {...onlinePeople}
   delete onlinePeopleExclOurUser[id]
@@ -114,8 +116,6 @@ export default function Chat() {
                 {messagesWithoutDupes.map(message => (
                   <div key={message._id} className={(message.sender === id ? 'text-right' : 'text-left')}>
                     <div className={"text-left inline-block p-2 my-2 rounded-md text-sm " + (message.sender === id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500')}>
-                      sender: {message.sender}<br />
-                      my id: {id}<br />
                       {message.text}
                     </div>
                   </div>
