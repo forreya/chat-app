@@ -45,8 +45,9 @@ mongoose.connect(MONGO_URL).then(() => {
     connection.timer = setInterval(() => {
       connection.deathTimer = setTimeout(() => {
         connection.isAlive = false;
+        clearInterval(connection.timer);
         connection.terminate();
-      notifyAboutOnlinePeople()
+      notifyAboutOnlinePeople();
       },1000)
       connection.ping();
     }, 5000)
