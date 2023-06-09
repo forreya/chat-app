@@ -50,7 +50,10 @@ export default function Chat() {
   }
 
   function handleLogout() {
-    console.log('Logout')
+    axios.post('/logout').then(() => {
+      setId(null);
+      setUsername(null);
+    })
   }
 
   function sendMessage(event) {
