@@ -31,6 +31,30 @@ mongoose.connect(MONGO_URL).then(() => {
   const ws_server = new ws.WebSocketServer({server})
   ws_server.on('connection', (connection, req) => {
 
+    function notifyAboutOnlinePeople() {
+      Array.from(ws_server.clients).forEach(client => {
+        client.send(JSON.stringify({
+          online: [...ws_server.clients].map(client => ({userId:client.userId, username:client.username}))
+        }
+        ))
+      })
+    }
+
+    connection.isAlive = true;
+
+    connection.timer = setInterval(() => {
+      connection.deathTimer = setTimeout(() => {
+        connection.isAlive = false;
+        connection.terminate();
+      notifyAboutOnlinePeople()
+      },1000)
+      connection.ping();
+    }, 5000)
+
+    connection.on('pong', () => {
+      clearTimeout(connection.deathTimer);
+    })
+
     // Read username and id from the cookie for this connection
     const cookies = req.headers.cookie
     if (cookies) {
@@ -71,12 +95,8 @@ mongoose.connect(MONGO_URL).then(() => {
     })
 
     // Notify everyone about other online people
-    Array.from(ws_server.clients).forEach(client => {
-      client.send(JSON.stringify({
-        online: [...ws_server.clients].map(client => ({userId:client.userId, username:client.username}))
-      }
-      ))
-    })
+    notifyAboutOnlinePeople()
+
   })
 }).catch((error) => {
   console.error('Failed to connect to MongoDB:', error)
