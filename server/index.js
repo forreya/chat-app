@@ -77,7 +77,8 @@ mongoose.connect(MONGO_URL).then(() => {
 
     connection.on('message', async (message) => {
       const messageData = JSON.parse(message.toString());
-      const {recipient, text} = messageData;
+      const {recipient, text, file} = messageData;
+      if (file) {console.log({file})}
       if (recipient && text) {
         const messageDoc = await MessageModel.create({
           sender: connection.userId,
