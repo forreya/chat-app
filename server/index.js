@@ -8,14 +8,17 @@ const MessageModel = require('./models/message')
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const ws = require('ws')
+const fs = require('fs');
 
 dotenv.config();
 
 const app = express();
+
 app.use(cors({
   credentials: true,
   origin: process.env.CLIENT_URL
 }))
+app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(express.json())
 app.use(cookieParser())
 
@@ -78,12 +81,24 @@ mongoose.connect(MONGO_URL).then(() => {
     connection.on('message', async (message) => {
       const messageData = JSON.parse(message.toString());
       const {recipient, text, file} = messageData;
-      if (file) {console.log({file})}
-      if (recipient && text) {
+      let filename = null;
+      if (file) {
+        const parts = file.name.split('.')
+        const ext = parts[parts.length - 1]
+        filename = Date.now() + '.' + ext;
+        const path = __dirname + '/uploads/' + filename;
+        const bufferData = new Buffer(file.data.split(',')[1], 'base64');
+
+        fs.writeFile(path, bufferData, () => {
+          console.log('File saved: '+path)
+        })
+      }
+      if (recipient && (text || file)) {
         const messageDoc = await MessageModel.create({
           sender: connection.userId,
           recipient,
           text,
+          file: file ? filename : null,
         });
         Array.from(ws_server.clients)
           .filter(client => client.userId === recipient)
@@ -91,6 +106,7 @@ mongoose.connect(MONGO_URL).then(() => {
             text, 
             sender:connection.userId,
             recipient,
+            file: file ? filename : null,
             _id: messageDoc._id
           })));
       }
