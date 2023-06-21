@@ -19,6 +19,6 @@ None right now.
 - [✓] Register / Login
 - [✓] Websockets (Authentication)
 - [✓] Chat Page
-- [ ] Messages & Conversations
-- [ ] Online Indicator
-- [ ] Uploads & Attachments
+- [✓] Messages & Conversations
+- [✓] Online Indicator
+- [✓] Uploads & Attachments
